@@ -10,3 +10,7 @@
 | Upside-down (180°) | Numpad 2 |
 | Flip horizontally | Numpad 9 |
 | Flip vertically | Numpad 3 |
+
+## Installation
+
+https://github.com/brndnm282/weverse-video-rotation/raw/refs/heads/main/Weverse%20Video%20Rotation.user.js
