@@ -13,4 +13,4 @@
 
 ## Installation
 
-https://github.com/brndnm282/weverse-video-rotation/raw/refs/heads/main/Weverse%20Video%20Rotation.user.js
+https://raw.githubusercontent.com/brndnm282/weverse-video-rotation/main/Weverse%20Video%20Rotation.user.js
