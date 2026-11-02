@@ -2,13 +2,14 @@
 // @name        Weverse Video Rotation
 // @description Adds buttons and keyboard shortcuts to rotate and flip the video on Weverse.io
 // @version     2
-// @author      Slooshi
-// @namespace   Slooshi
+// @author      brndnm282
+// @namespace   https://github.com/brndnm282/twitch-video-rotation/
+// @supportURL  https://github.com/brndnm282/twitch-video-rotation/issues
 // @match       https://weverse.io/*
 // @license     MIT
 // @grant       GM_addStyle
 // @downloadURL https://update.greasyfork.org/scripts/527066/Weverse%20Video%20Rotation.user.js
-// @updateURL https://update.greasyfork.org/scripts/527066/Weverse%20Video%20Rotation.meta.js
+// @updateURL   https://update.greasyfork.org/scripts/527066/Weverse%20Video%20Rotation.meta.js
 // ==/UserScript==
 
 GM_addStyle(`
