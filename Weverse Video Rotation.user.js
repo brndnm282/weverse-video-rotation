@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        Weverse Video Rotation
-// @description Adds buttons and keyboard shortcuts to rotate and flip the video on Weverse.io
+// @description Adds buttons and keyboard shortcuts to rotate and flip the video on Weverse
 // @version     2
 // @author      brndnm282
 // @namespace   https://github.com/brndnm282/weverse-video-rotation/
