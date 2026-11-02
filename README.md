@@ -1,2 +1,12 @@
-# weverse-video-rotation
-Weverse userscript for rotating and flipping Weverse videos with buttons and keyboard shortcuts.
+# Fork of @aqmx's [V LIVE Video Rotation](/en/scripts/379342-v-live-video-rotation) to use on Weverse.
+
+### Adds buttons and keyboard shortcuts to rotate and flip the video player on Weverse.
+
+| Shortcuts for rotating the player: | Key |
+| :--- | :--- |
+| Default | Numpad 8 |
+| 90° left | Numpad 4 |
+| 90° right | Numpad 6 |
+| Upside-down (180°) | Numpad 2 |
+| Flip horizontally | Numpad 9 |
+| Flip vertically | Numpad 3 |
