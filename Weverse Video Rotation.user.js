@@ -8,8 +8,8 @@
 // @match       https://weverse.io/*
 // @license     MIT
 // @grant       GM_addStyle
-// @downloadURL https://update.greasyfork.org/scripts/527066/Weverse%20Video%20Rotation.user.js
-// @updateURL   https://update.greasyfork.org/scripts/527066/Weverse%20Video%20Rotation.meta.js
+// @downloadURL https://raw.githubusercontent.com/brndnm282/weverse-video-rotation/main/Weverse%20Video%20Rotation.user.js
+// @updateURL   https://raw.githubusercontent.com/brndnm282/weverse-video-rotation/main/Weverse%20Video%20Rotation.user.js
 // ==/UserScript==
 
 GM_addStyle(`
