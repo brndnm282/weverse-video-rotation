@@ -13,241 +13,297 @@
 
 GM_addStyle(`
 #video-rotation-controls {
-\tmargin-left: 15px;
-\tmargin-right: 15px;
-\tdisplay: inline-flex;
-\talign-items: center;
-\tvertical-align: middle;
-\tflex-shrink: 0;
-\tgap: 3px;
-\tz-index: 20;
+	margin-left: 15px;
+	margin-right: 15px;
+	display: inline-flex;
+	align-items: center;
+	vertical-align: middle;
+	flex-shrink: 0;
+	gap: 3px;
+	z-index: 20;
 }
 #video-rotation-controls button {
-\tfont-size: 20px;
-\tbackground: #f5f5f5;
-\tborder: 1px solid #d9d9d9;
-\tborder-radius: 4px;
-\tcolor: #414141;
-\tline-height: 22px;
-\theight: 24px;
-\twidth: 24px;
-\tpadding: 0;
-\tcursor: pointer;
-\toutline: 0;
-\tdisplay: inline-flex;
-\talign-items: center;
-\tjustify-content: center;
+	font-size: 20px;
+	background: #f5f5f5;
+	border: 1px solid #d9d9d9;
+	border-radius: 4px;
+	color: #414141;
+	line-height: 22px;
+	height: 24px;
+	width: 24px;
+	padding: 0;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 }
 #video-rotation-controls button:hover {
-\tbackground: #e8e8e8;
+	background: #e8e8e8;
+}
+#video-rotation-controls button:focus-visible {
+	outline: 2px solid #005fcc;
+	outline-offset: 2px;
 }
 .vwplayer_vlivelive .videoBox,
 .webplayer-internal-container {
-\theight: calc(100% - 4px);
-\twidth: calc(100% - 4px);
+	height: calc(100% - 4px);
+	width: calc(100% - 4px);
 }
 .media-post-detail-layout_--player,
 .webplayer-internal-container,
 .pzp-pc-video-wrapper,
 .pzp-pc__video-wrapper {
-\toverflow: hidden;
+	overflow: hidden;
 }
 `);
 
 const directions = {
-\tleft: 'r270',
-\tup: 'r0',
-\tright: 'r90',
-\tdown: 'r180',
-\tflipH: 'flipH',
-\tflipV: 'flipV',
+	left: 'r270',
+	up: 'r0',
+	right: 'r90',
+	down: 'r180',
+	flipH: 'flipH',
+	flipV: 'flipV',
 };
 
 const rotations = {
-\tr90: 'rotate(90deg)',
-\tr180: 'rotate(180deg)',
-\tr270: 'rotate(270deg)',
+	r90: 'rotate(90deg) scale(var(--video-rotation-scale, 1))',
+	r180: 'rotate(180deg)',
+	r270: 'rotate(270deg) scale(var(--video-rotation-scale, 1))',
 };
 
 const scaling = {
-\tflipH: 'scaleX(-1)',
-\tflipV: 'scaleY(-1)',
-\tportrait: 'scale(1.77777)',
-\tlandscape: 'scale(0.5625)',
+	flipH: 'scaleX(-1)',
+	flipV: 'scaleY(-1)',
 };
 
 const controlsID = 'video-rotation-controls';
 let shortcutsEnabled = true;
 const shortcuts = {
-\t'Numpad8': directions.up,
-\t'Numpad2': directions.down,
-\t'Numpad4': directions.left,
-\t'Numpad6': directions.right,
-\t'Numpad9': directions.flipH,
-\t'Numpad3': directions.flipV,
+	'Numpad8': directions.up,
+	'Numpad2': directions.down,
+	'Numpad4': directions.left,
+	'Numpad6': directions.right,
+	'Numpad9': directions.flipH,
+	'Numpad3': directions.flipV,
 };
 
 // Target reaction_wrap element in the media post header
 const REACTION_WRAP_SELECTORS = [
-\t'.media-post-header_--reaction_wrap',
-\t'.media-post-header-_-reaction_wrap',
-\t'[class*="media-post-header"][class*="reaction_wrap"]',
+	'.media-post-header_--reaction_wrap',
+	'.media-post-header-_-reaction_wrap',
+	'[class*="media-post-header"][class*="reaction_wrap"]',
 ].join(', ');
 
 // Current Weverse / Naver Prism Player video selectors
 const VIDEO_SELECTORS = [
-\t'video.webplayer-internal-video',
-\t'.media-post-detail-layout_--player video',
-\t'.pzp video',
-\t'video',
+	'video.webplayer-internal-video',
+	'.media-post-detail-layout_--player video',
+	'.pzp video',
+	'video',
 ].join(', ');
 
 function getReactionWrapElement() {
-\treturn document.querySelector(REACTION_WRAP_SELECTORS);
+	return document.querySelector(REACTION_WRAP_SELECTORS);
 }
 
 function getVideoElement() {
-\treturn document.querySelector(VIDEO_SELECTORS);
+	return document.querySelector(VIDEO_SELECTORS);
 }
 
 function initTransformStylesheet() {
-\tif (document.getElementById('video-rotation-transform-styles')) {
-\t\treturn;
-\t}
+	if (document.getElementById('video-rotation-transform-styles')) {
+		return;
+	}
 
-\tconst stylesheet = document.createElement('style');
-\tstylesheet.id = 'video-rotation-transform-styles';
-\tconst rules = [];
+	const stylesheet = document.createElement('style');
+	stylesheet.id = 'video-rotation-transform-styles';
+	const rules = [];
 
-\tconst getAllSubsets = arr =>
-\t\tarr.reduce((subsets, value) => subsets.concat(subsets.map(set => [...set, value])), [[]]).slice(1);
-\tconst scalings = getAllSubsets(Object.keys(scaling));
+	const getAllSubsets = arr =>
+		arr.reduce((subsets, value) => subsets.concat(subsets.map(set => [...set, value])), [[]]).slice(1);
+	const scalings = getAllSubsets(Object.keys(scaling));
 
-\tfor (const rule in rotations) {
-\t\trules.push(`video.${rule} { transform: ${rotations[rule]} !important; }`);
-\t\tfor (const scalingSet of scalings) {
-\t\t\tconst selectorSuffix = scalingSet.map(c => `.${c}`).join('');
-\t\t\tconst transformSuffix = scalingSet.map(c => scaling[c]).join(' ');
-\t\t\trules.push(`video.${rule}${selectorSuffix} { transform: ${rotations[rule]} ${transformSuffix} !important; }`);
-\t\t}
-\t}
+	for (const rule in rotations) {
+		rules.push(`video.${rule} { transform: ${rotations[rule]} !important; }`);
+		for (const scalingSet of scalings) {
+			const selectorSuffix = scalingSet.map(c => `.${c}`).join('');
+			const transformSuffix = scalingSet.map(c => scaling[c]).join(' ');
+			rules.push(`video.${rule}${selectorSuffix} { transform: ${rotations[rule]} ${transformSuffix} !important; }`);
+		}
+	}
 
-\tconst flips = getAllSubsets([directions.flipH, directions.flipV]);
-\tfor (const flipSet of flips) {
-\t\tconst selectorSuffix = flipSet.map(c => `.${c}`).join('');
-\t\tconst transformValue = flipSet.map(c => scaling[c]).join(' ');
-\t\trules.push(`video${selectorSuffix} { transform: ${transformValue} !important; }`);
-\t}
+	const flips = getAllSubsets([directions.flipH, directions.flipV]);
+	for (const flipSet of flips) {
+		const selectorSuffix = flipSet.map(c => `.${c}`).join('');
+		const transformValue = flipSet.map(c => scaling[c]).join(' ');
+		rules.push(`video${selectorSuffix} { transform: ${transformValue} !important; }`);
+	}
 
-\tstylesheet.textContent = rules.join('\\n');
-\tdocument.head.appendChild(stylesheet);
+	stylesheet.textContent = rules.join('\n');
+	document.head.appendChild(stylesheet);
 }
 
 function addButtons() {
-\tif (document.getElementById(controlsID)) {
-\t\treturn;
-\t}
+	if (document.getElementById(controlsID)) {
+		return;
+	}
 
-\tconst reactionWrap = getReactionWrapElement();
-\tif (!reactionWrap || !reactionWrap.parentNode) {
-\t\treturn;
-\t}
+	const reactionWrap = getReactionWrapElement();
+	if (!reactionWrap || !reactionWrap.parentNode) {
+		return;
+	}
 
-\tconst btnDirections = [
-\t\t[directions.left, '🠘', 'Rotate Left (Numpad 4)'],
-\t\t[directions.up, '🠙', 'Reset Rotation (Numpad 8)'],
-\t\t[directions.right, '🠚', 'Rotate Right (Numpad 6)'],
-\t\t[directions.down, '🠛', 'Rotate 180° (Numpad 2)'],
-\t\t[directions.flipV, '🡙', 'Flip Vertically (Numpad 3)'],
-\t\t[directions.flipH, '🡘', 'Flip Horizontally (Numpad 9)'],
-\t];
+	const btnDirections = [
+		[directions.left, '🠘', 'Rotate Left (Numpad 4)'],
+		[directions.up, '🠙', 'Reset Rotation (Numpad 8)'],
+		[directions.right, '🠚', 'Rotate Right (Numpad 6)'],
+		[directions.down, '🠛', 'Rotate 180° (Numpad 2)'],
+		[directions.flipV, '🡙', 'Flip Vertically (Numpad 3)'],
+		[directions.flipH, '🡘', 'Flip Horizontally (Numpad 9)'],
+	];
 
-\tconst div = document.createElement('div');
-\tdiv.id = controlsID;
+	const div = document.createElement('div');
+	div.id = controlsID;
 
-\tfor (const [dir, label, title] of btnDirections) {
-\t\tconst btn = document.createElement('button');
-\t\tbtn.type = 'button';
-\t\tbtn.dataset.direction = dir;
-\t\tbtn.textContent = label;
-\t\tif (title) btn.title = title;
-\t\tdiv.appendChild(btn);
-\t}
+	for (const [dir, label, title] of btnDirections) {
+		const btn = document.createElement('button');
+		btn.type = 'button';
+		btn.dataset.direction = dir;
+		btn.textContent = label;
+		if (title) {
+			btn.title = title;
+			btn.setAttribute('aria-label', title);
+		}
+		div.appendChild(btn);
+	}
 
-\treactionWrap.parentNode.insertBefore(div, reactionWrap);
+	reactionWrap.parentNode.insertBefore(div, reactionWrap);
+}
+
+let observedVideo = null;
+let resizeObserver = null;
+
+function updateRotationScale() {
+	if (!observedVideo) return;
+	const video = observedVideo;
+	const player = video.closest('.webplayer-internal-container, .media-post-detail-layout_--player, .pzp-pc-video-wrapper, .pzp-pc__video-wrapper') || video.parentElement;
+	if (!player) return;
+
+	let width = video.clientWidth;
+	let height = video.clientHeight;
+	const playerWidth = player.clientWidth;
+	const playerHeight = player.clientHeight;
+	if (!width || !height || !playerWidth || !playerHeight) return;
+
+	// Measure the visible picture within a letterboxed video element.
+	const fit = getComputedStyle(video).objectFit;
+	if (video.videoWidth && video.videoHeight && (fit === 'contain' || fit === 'scale-down')) {
+		let contentScale = Math.min(width / video.videoWidth, height / video.videoHeight);
+		if (fit === 'scale-down') contentScale = Math.min(contentScale, 1);
+		width = video.videoWidth * contentScale;
+		height = video.videoHeight * contentScale;
+	}
+	video.style.setProperty('--video-rotation-scale', Math.min(playerWidth / height, playerHeight / width));
+}
+
+function stopObservingVideo() {
+	if (!observedVideo) return;
+	if (resizeObserver) resizeObserver.disconnect();
+	observedVideo.removeEventListener('loadedmetadata', updateRotationScale);
+	observedVideo.removeEventListener('resize', updateRotationScale);
+	window.removeEventListener('resize', updateRotationScale);
+	observedVideo.style.removeProperty('--video-rotation-scale');
+	observedVideo = null;
+}
+
+function observeVideo(video) {
+	stopObservingVideo();
+	observedVideo = video;
+	const player = video.closest('.webplayer-internal-container, .media-post-detail-layout_--player, .pzp-pc-video-wrapper, .pzp-pc__video-wrapper') || video.parentElement;
+	if (typeof ResizeObserver !== 'undefined') {
+		resizeObserver = new ResizeObserver(updateRotationScale);
+		resizeObserver.observe(video);
+		if (player) resizeObserver.observe(player);
+	}
+	video.addEventListener('loadedmetadata', updateRotationScale);
+	video.addEventListener('resize', updateRotationScale);
+	window.addEventListener('resize', updateRotationScale);
+	updateRotationScale();
 }
 
 function rotateVideo(direction) {
-\tconst video = getVideoElement();
-\tif (!video) return;
+	const video = getVideoElement();
+	if (!video) return;
 
-\tconst flip = [directions.flipH, directions.flipV].includes(direction);
+	const flip = [directions.flipH, directions.flipV].includes(direction);
 
-\tif (flip) {
-\t\tvideo.classList.toggle(direction);
-\t} else {
-\t\tvideo.classList.remove(directions.left, directions.right, directions.down, 'portrait', 'landscape');
-\t\tif (direction !== directions.up) {
-\t\t\tvideo.classList.add(direction);
-\t\t\tif ([directions.left, directions.right].includes(direction)) {
-\t\t\t\tvideo.classList.add(video.videoHeight > video.videoWidth ? 'portrait' : 'landscape');
-\t\t\t}
-\t\t}
-\t}
+	if (flip) {
+		video.classList.toggle(direction);
+	} else {
+		stopObservingVideo();
+		video.classList.remove(directions.left, directions.right, directions.down);
+		if (direction !== directions.up) {
+			video.classList.add(direction);
+			if ([directions.left, directions.right].includes(direction)) {
+				observeVideo(video);
+			}
+		}
+	}
 }
 
 function isEditableTarget(target) {
-\tif (!target) return false;
-\tconst tag = target.tagName ? target.tagName.toLowerCase() : '';
-\treturn tag === 'input' || tag === 'textarea' || tag === 'select' || target.isContentEditable;
+	if (!target) return false;
+	const tag = target.tagName ? target.tagName.toLowerCase() : '';
+	return tag === 'input' || tag === 'textarea' || tag === 'select' || target.isContentEditable;
 }
 
 (() => {
-\tinitTransformStylesheet();
-\taddButtons();
+	initTransformStylesheet();
+	addButtons();
 
-\t// Re-add buttons automatically across React SPA navigation and async header rendering
-\tconst observer = new MutationObserver(() => {
-\t\tif (!document.getElementById(controlsID) && getReactionWrapElement()) {
-\t\t\taddButtons();
-\t\t}
-\t});
+	// Re-add buttons automatically across React SPA navigation and async header rendering
+	const observer = new MutationObserver(() => {
+		if (!document.getElementById(controlsID) && getReactionWrapElement()) {
+			addButtons();
+		}
+	});
 
-\tif (document.body) {
-\t\tobserver.observe(document.body, { childList: true, subtree: true });
-\t} else {
-\t\twindow.addEventListener('DOMContentLoaded', () => {
-\t\t\tobserver.observe(document.body, { childList: true, subtree: true });
-\t\t\taddButtons();
-\t\t});
-\t}
+	if (document.body) {
+		observer.observe(document.body, { childList: true, subtree: true });
+	} else {
+		window.addEventListener('DOMContentLoaded', () => {
+			observer.observe(document.body, { childList: true, subtree: true });
+			addButtons();
+		});
+	}
 })();
 
 window.addEventListener('click', function(e) {
-\tconst btn = e.target.closest ? e.target.closest(`#${controlsID} button`) : e.target;
-\tif (!btn || !btn.dataset.direction) {
-\t\treturn;
-\t}
-\trotateVideo(btn.dataset.direction);
+	const btn = e.target.closest ? e.target.closest(`#${controlsID} button`) : e.target;
+	if (!btn || !btn.dataset.direction) {
+		return;
+	}
+	rotateVideo(btn.dataset.direction);
 }, true);
 
 // Shortcuts
 window.addEventListener('keydown', function(e) {
-\tif (isEditableTarget(e.target)) {
-\t\treturn;
-\t}
+	if (isEditableTarget(e.target)) {
+		return;
+	}
 
-\tlet stopPropagation = false;
-\tif (shortcuts[e.code] && shortcutsEnabled) {
-\t\trotateVideo(shortcuts[e.code]);
-\t\tstopPropagation = true;
-\t} else if (e.code === 'Pause') {
-\t\tshortcutsEnabled = !shortcutsEnabled;
-\t\tstopPropagation = true;
-\t}
+	let stopPropagation = false;
+	if (shortcuts[e.code] && shortcutsEnabled) {
+		rotateVideo(shortcuts[e.code]);
+		stopPropagation = true;
+	} else if (e.code === 'Pause') {
+		shortcutsEnabled = !shortcutsEnabled;
+		stopPropagation = true;
+	}
 
-\tif (stopPropagation) {
-\t\te.preventDefault();
-\t\te.stopPropagation();
-\t}
+	if (stopPropagation) {
+		e.preventDefault();
+		e.stopPropagation();
+	}
 }, true);
